@@ -4,6 +4,7 @@ import numpy as np
 import tensorflow as tf
 
 from flask import Flask, jsonify, request
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -15,11 +16,11 @@ def load_model():
     path = os.path.join(path, 'model/model.h5')
 
     model = tf.keras.models.load_model(path)
-    print("Model loaded!")
+    print('Model loaded!')
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    required = ['cost', 'start_price', 'end_price', 'increment']
+    required = ['cost', 'start_price', 'end_price', 'increment', 'category']
     data = request.get_json(force=True)
 
     for key in required:
@@ -29,12 +30,15 @@ def predict():
     cost = data['cost']
     start_price = data['start_price']
     end_price = data['end_price']
+    category = data['category']
     increment = data['increment']
+
+    month = datetime.now().month
 
     x = []
 
     while start_price < end_price:
-        x.append([start_price, cost])
+        x.append([month, category, cost, start_price])
         start_price += increment
 
     predictions = model.predict([np.array(x)])
@@ -45,7 +49,7 @@ def predict():
     optimal_price = 0
 
     for i in range(len(predictions)):
-        price = float(x[i][0])
+        price = float(x[i][3])
         sales = float(predictions[i][0])
         profit = float((price - cost) * sales)
 
