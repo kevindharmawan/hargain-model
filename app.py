@@ -30,7 +30,7 @@ def predict():
     cost = data['cost']
     start_price = data['start_price']
     end_price = data['end_price']
-    category = data['category']
+    category = int(data['category'])
     increment = data['increment']
 
     month = datetime.now().month
